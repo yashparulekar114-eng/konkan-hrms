@@ -51,7 +51,9 @@ async function openPostgres(url: string): Promise<Db> {
 
 async function openPglite(): Promise<Db> {
   // Kept in the user's home folder, not the project: synced folders like OneDrive block the database's lock file.
-  const dataDir = process.env.HRMS_DATA_DIR || path.join(os.homedir(), ".konkan-hrms", "pglite");
+  // On Vercel only /tmp is writable, so the demo database lives there and is re-seeded whenever a new server starts.
+  const dataDir =
+    process.env.HRMS_DATA_DIR || (process.env.VERCEL ? "/tmp/konkan-hrms/pglite" : path.join(os.homedir(), ".konkan-hrms", "pglite"));
   fs.mkdirSync(dataDir, { recursive: true });
   // Windows can mark folders read-only (OneDrive does this, and copies keep it). PGlite then cannot create its lock file.
   const makeWritable = (dir: string) => {

@@ -1,4 +1,4 @@
-import type { PGlite } from "@electric-sql/pglite";
+import type { Conn } from "../../src/lib/db";
 import { addDays, dayOfWeek, todayIST } from "../../src/lib/ist";
 
 // Seed: 2 locations, 4 departments, 20 employees (1 HR Admin, 3 managers), this year's holidays,
@@ -69,7 +69,7 @@ const POLICY: [string, string][] = [
   ["Holidays", "Holidays are set per location (Panaji and Verna) and marked National, State or Optional. National and State holidays are days off for that location. Optional (restricted) holidays are shown on the calendar but are normal working days unless the employee takes leave."],
 ];
 
-export async function seedDatabase(db: PGlite): Promise<void> {
+export async function seedDatabase(db: Conn): Promise<void> {
   const today = todayIST();
   const year = Number(today.slice(0, 4));
   const q = (sql: string, params: unknown[] = []) => db.query(sql, params);
@@ -176,6 +176,7 @@ export async function seedDatabase(db: PGlite): Promise<void> {
   }
 
   let regularisationSeeded = false;
+  const att: [number, string, string | null, string | null, boolean, boolean][] = [];
   // Sample attendance from the start of last month up to yesterday (today is left for you to check in).
   for (let n = 1; n <= EMPLOYEES.length; n++) {
     const loc = EMPLOYEES[n - 1][3];
@@ -190,10 +191,7 @@ export async function seedDatabase(db: PGlite): Promise<void> {
       else if (r === 2) { inT = "09:30"; outT = "14:30"; } // 5 hours = half day
       else if (r === 3 && loc === PANAJI) { wfh = true; }
       else if (r === 4) { inT = "09:35"; outT = null; } // missed check-out
-      await q(
-        `insert into attendance (employee_id, date, check_in, check_out, is_wfh, is_late) values ($1, $2, $3, $4, $5, $6)`,
-        [n, d, wfh ? null : `${d}T${inT}:00+05:30`, wfh || !outT ? null : `${d}T${outT}:00+05:30`, wfh, !wfh && inT > "10:15"],
-      );
+      att.push([n, d, wfh ? null : `${d}T${inT}:00+05:30`, wfh || !outT ? null : `${d}T${outT}:00+05:30`, wfh, !wfh && inT > "10:15"]);
       if (n === 8 && !outT && !wfh && !regularisationSeeded) {
         regularisationSeeded = true;
         await q(
@@ -203,4 +201,11 @@ export async function seedDatabase(db: PGlite): Promise<void> {
       }
     }
   }
+  // One insert for all attendance rows (fast even over the network to Supabase).
+  const col = (i: number) => att.map((r) => r[i]);
+  await q(
+    `insert into attendance (employee_id, date, check_in, check_out, is_wfh, is_late)
+     select * from unnest($1::int[], $2::date[], $3::timestamptz[], $4::timestamptz[], $5::boolean[], $6::boolean[])`,
+    [col(0), col(1), col(2), col(3), col(4), col(5)],
+  );
 }

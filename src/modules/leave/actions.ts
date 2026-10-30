@@ -1,8 +1,5 @@
 "use server";
 
-import fs from "node:fs";
-import path from "node:path";
-import crypto from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { canManageEmployee, requireHR, requireUser } from "@/lib/auth";
 import { query, queryOne } from "@/lib/db";
@@ -35,11 +32,8 @@ export async function applyLeaveAction(form: FormData): Promise<SubmitResult> {
   const file = form.get("certificate");
   if (file instanceof File && file.size > 0) {
     if (file.size > 4 * 1024 * 1024) return { error: "The certificate file must be under 4 MB." };
-    const dir = path.join(process.cwd(), ".data", "uploads");
-    fs.mkdirSync(dir, { recursive: true });
-    const name = `${crypto.randomUUID()}${path.extname(file.name).replace(/[^.a-zA-Z0-9]/g, "")}`;
-    fs.writeFileSync(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
-    input.attachment_url = name;
+    if (!["application/pdf", "image/png", "image/jpeg"].includes(file.type)) return { error: "The certificate must be a PDF, PNG or JPG." };
+    input.certificate = { name: file.name, type: file.type, data: Buffer.from(await file.arrayBuffer()) };
   }
   const result = await submitLeave(me, input);
   if (result.ok) revalidatePath("/", "layout");

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
 import type { Me } from "@/lib/auth";
 import { logout } from "@/lib/session-actions";
 
@@ -15,7 +16,7 @@ export function Logo() {
   );
 }
 
-export function Nav({ me }: { me: Me }) {
+export function Nav({ me, clerk }: { me: Me; clerk: boolean }) {
   const links: [string, string, boolean][] = [
     ["/", "Home", true],
     ["/profile", "My profile", true],
@@ -40,9 +41,15 @@ export function Nav({ me }: { me: Me }) {
           <span className="text-slate-700">
             {me.full_name} <span className="text-slate-400">({me.employee_code}, {role}, {me.location_name})</span>
           </span>
-          <form action={logout}>
-            <button className="text-teal-700 hover:underline">Log out</button>
-          </form>
+          {clerk ? (
+            <SignOutButton redirectUrl="/login">
+              <button className="text-teal-700 hover:underline">Log out</button>
+            </SignOutButton>
+          ) : (
+            <form action={logout}>
+              <button className="text-teal-700 hover:underline">Log out</button>
+            </form>
+          )}
         </div>
       </div>
       <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2 text-sm">

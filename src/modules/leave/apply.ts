@@ -13,7 +13,7 @@ export type LeaveInput = {
   is_half_day: boolean;
   reason: string;
   convert_to_lop?: boolean;
-  attachment_url?: string | null;
+  certificate?: { name: string; type: string; data: Buffer } | null;
 };
 
 export type LeavePreview = {
@@ -75,7 +75,7 @@ export async function submitLeave(me: Me, input: LeaveInput): Promise<SubmitResu
   if (!input.reason) return { error: "Please give a reason." };
   const p = await previewLeave(me, input);
   if (p.error) return { error: p.error };
-  if (p.needsCertificate && !input.attachment_url) return { error: "Sick Leave of more than 2 consecutive days needs a medical certificate upload.", preview: p };
+  if (p.needsCertificate && !input.certificate) return { error: "Sick Leave of more than 2 consecutive days needs a medical certificate upload.", preview: p };
   if (p.excess! > 0 && !input.convert_to_lop) {
     return {
       needsLop: true,
@@ -86,8 +86,16 @@ export async function submitLeave(me: Me, input: LeaveInput): Promise<SubmitResu
   const row = await queryOne<{ id: number }>(
     `insert into leave_requests (employee_id, leave_type_id, from_date, to_date, is_half_day, days, lop_days, reason, attachment_url)
      values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`,
-    [me.id, input.leave_type_id, input.from_date, input.to_date, input.is_half_day, p.days, p.excess ?? 0, input.reason, input.attachment_url ?? null],
+    [me.id, input.leave_type_id, input.from_date, input.to_date, input.is_half_day, p.days, p.excess ?? 0, input.reason, input.certificate ? "certificate" : null],
   );
+  if (input.certificate) {
+    await query("insert into leave_certificates (leave_request_id, file_name, content_type, data) values ($1, $2, $3, $4)", [
+      row!.id,
+      input.certificate.name,
+      input.certificate.type,
+      input.certificate.data,
+    ]);
+  }
 
   // Email the reporting manager (or HR if the employee has no manager).
   const approvers = me.reporting_manager_id

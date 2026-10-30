@@ -3,10 +3,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { queryOne } from "./db";
-import { loadEmployeeSession, SESSION_COOKIE } from "./auth";
+import { clerkEnabled, loadEmployeeSession, SESSION_COOKIE } from "./auth";
 
 /** Localhost sign-in: find the employee by email. A deactivated employee is sent to access-denied. */
 export async function loginAs(form: FormData): Promise<{ error?: string }> {
+  if (clerkEnabled) return { error: "Demo login is off. Sign in with Clerk." };
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const emp = await queryOne<{ id: number }>("select id from employees where lower(email) = $1", [email]);
   if (!emp) return { error: "No employee with that email." };

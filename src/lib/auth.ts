@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { queryOne } from "./db";
+import { query, queryOne } from "./db";
 
 // Localhost login: the user picks a seeded employee by email (no password), stored in a cookie.
 // The role always comes from our database: only the HR Admin flag is stored, Manager is derived.
@@ -40,11 +40,39 @@ export async function loadEmployeeSession(employeeId: number): Promise<(Me & { c
   );
 }
 
+/** Clerk is used when its keys are set (Vercel). Without them, localhost uses the pick-an-employee demo login. */
+export const clerkEnabled = !!process.env.CLERK_SECRET_KEY && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+/**
+ * Which employee row the visitor is. 'none' = not signed in; 'unknown' = signed in to Clerk with an email
+ * that is not an employee.
+ */
+async function sessionEmployeeId(): Promise<number | "none" | "unknown"> {
+  if (!clerkEnabled) {
+    const raw = (await cookies()).get(SESSION_COOKIE)?.value;
+    return raw && Number.isInteger(Number(raw)) ? Number(raw) : "none";
+  }
+  const { auth, currentUser } = await import("@clerk/nextjs/server");
+  const { userId } = await auth();
+  if (!userId) return "none";
+  const linked = await queryOne<{ id: number }>("select id from employees where clerk_user_id = $1", [userId]);
+  if (linked) return linked.id;
+  // First sign-in: match a verified Clerk email to the employee's work email, then remember the link.
+  // "name+clerk_test@..." is Clerk's test-email format (code 424242 in a development instance) and maps to "name@...".
+  const user = await currentUser();
+  const emails = (user?.emailAddresses ?? [])
+    .filter((e) => e.verification?.status === "verified")
+    .map((e) => e.emailAddress.toLowerCase().replace("+clerk_test@", "@"));
+  const emp = await queryOne<{ id: number }>("select id from employees where lower(email) = any($1) and clerk_user_id is null", [emails]);
+  if (!emp) return "unknown";
+  await query("update employees set clerk_user_id = $1 where id = $2", [userId, emp.id]);
+  return emp.id;
+}
+
 /** The signed-in employee, or null. Does not redirect. */
 export async function getMe(): Promise<Me | null> {
-  const raw = (await cookies()).get(SESSION_COOKIE)?.value;
-  const id = Number(raw);
-  if (!raw || !Number.isInteger(id)) return null;
+  const id = await sessionEmployeeId();
+  if (typeof id !== "number") return null;
   const me = await loadEmployeeSession(id);
   if (!me || !me.can_login) return null;
   return me;
@@ -52,9 +80,10 @@ export async function getMe(): Promise<Me | null> {
 
 /** Use on every page and action: sends the visitor to login, or to access-denied after their last working day. */
 export async function requireUser(): Promise<Me> {
-  const raw = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!raw) redirect("/login");
-  const me = await loadEmployeeSession(Number(raw));
+  const id = await sessionEmployeeId();
+  if (id === "none") redirect("/login");
+  if (id === "unknown") redirect("/access-denied");
+  const me = await loadEmployeeSession(id);
   if (!me) redirect("/login");
   if (!me.can_login) redirect("/access-denied");
   return me;

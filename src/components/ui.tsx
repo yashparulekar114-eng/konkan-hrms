@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 
 // Shared look: one place for buttons, cards, form fields and status colours.
 
-export const btn = "inline-flex items-center justify-center rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-50";
+export const btn = "inline-flex items-center justify-center rounded-md bg-pink-700 px-4 py-2 text-sm font-medium text-white hover:bg-pink-800 disabled:opacity-50";
 export const btnSecondary = "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50";
 export const btnDanger = "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50";
-export const input = "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-teal-600 focus:outline-none";
-export const link = "text-teal-700 underline-offset-2 hover:underline";
+export const input = "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-600 focus:outline-none";
+export const link = "text-blue-700 underline-offset-2 hover:underline";
 
 export function Card({ title, children, action }: { title?: string; children: ReactNode; action?: ReactNode }) {
   return (
@@ -59,7 +59,7 @@ export const STATUS_COLORS: Record<string, string> = {
   Holiday: "bg-purple-100 text-purple-800 border-purple-300",
   "Weekly Off": "bg-slate-200 text-slate-700 border-slate-300",
   Late: "bg-orange-100 text-orange-800 border-orange-300",
-  "Checked In": "bg-teal-100 text-teal-800 border-teal-300",
+  "Checked In": "bg-blue-100 text-blue-800 border-blue-300",
   pending: "bg-amber-100 text-amber-800 border-amber-300",
   approved: "bg-green-100 text-green-800 border-green-300",
   rejected: "bg-red-100 text-red-800 border-red-300",

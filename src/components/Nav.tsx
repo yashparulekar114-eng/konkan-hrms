@@ -7,11 +7,11 @@ export function Logo() {
   return (
     <span className="flex items-center gap-2">
       <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
-        <circle cx="16" cy="16" r="15" fill="#0f766e" />
+        <circle cx="16" cy="16" r="15" fill="#db2777" />
         <path d="M6 20c3-3 6-3 10 0s7 3 10 0" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-        <path d="M11 7v10M11 12l6-5M11 12l6 5" stroke="#fde68a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M11 7v10M11 12l6-5M11 12l6 5" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       </svg>
-      <span className="text-lg font-bold text-teal-800">KonkanHR</span>
+      <span className="text-lg font-bold text-white">KonkanHR</span>
     </span>
   );
 }
@@ -34,20 +34,20 @@ export function Nav({ me, clerk }: { me: Me; clerk: boolean }) {
   ];
   const role = me.is_hr_admin ? "HR Admin" : me.is_manager ? "Manager" : "Employee";
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="border-b border-pink-600 bg-black">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2">
         <Link href="/"><Logo /></Link>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-slate-700">
+          <span className="text-slate-200">
             {me.full_name} <span className="text-slate-400">({me.employee_code}, {role}, {me.location_name})</span>
           </span>
           {clerk ? (
             <SignOutButton redirectUrl="/login">
-              <button className="text-teal-700 hover:underline">Log out</button>
+              <button className="text-sky-300 hover:underline">Log out</button>
             </SignOutButton>
           ) : (
             <form action={logout}>
-              <button className="text-teal-700 hover:underline">Log out</button>
+              <button className="text-sky-300 hover:underline">Log out</button>
             </form>
           )}
         </div>
@@ -56,7 +56,7 @@ export function Nav({ me, clerk }: { me: Me; clerk: boolean }) {
         {links
           .filter(([, , show]) => show)
           .map(([href, label]) => (
-            <Link key={href} href={href} className="whitespace-nowrap rounded-md px-2.5 py-1 text-slate-700 hover:bg-teal-50 hover:text-teal-800">
+            <Link key={href} href={href} className="whitespace-nowrap rounded-md px-2.5 py-1 text-slate-200 hover:bg-pink-700 hover:text-white">
               {label}
             </Link>
           ))}

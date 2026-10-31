@@ -6,7 +6,7 @@ export function BalanceCards({ balances, detailed = false }: { balances: Balance
       {balances.map((b) => (
         <div key={b.type.id} className="rounded-md border border-slate-200 p-3">
           <p className="text-xs font-medium text-slate-500">{b.type.name}</p>
-          <p className="text-2xl font-bold text-teal-800">{b.available === null ? "No limit" : b.available}</p>
+          <p className="text-2xl font-bold text-blue-800">{b.available === null ? "No limit" : b.available}</p>
           <p className="text-xs text-slate-500">available</p>
           {detailed && (
             <dl className="mt-2 grid grid-cols-2 gap-x-2 text-xs text-slate-600">

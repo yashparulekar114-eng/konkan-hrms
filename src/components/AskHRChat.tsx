@@ -30,7 +30,7 @@ export function AskHRChat({ hasKey }: { hasKey: boolean }) {
       {!hasKey && <Notice kind="error">No Gemini API key yet. Add GOOGLE_GENERATIVE_AI_API_KEY to .env.local (free at aistudio.google.com) and restart the dev server.</Notice>}
       <div className="space-y-3">
         {turns.map((t, i) => (
-          <div key={i} className={t.role === "user" ? "ml-auto max-w-[85%] rounded-lg bg-teal-700 p-3 text-sm text-white" : "max-w-[95%] rounded-lg border border-slate-200 bg-white p-3 text-sm"}>
+          <div key={i} className={t.role === "user" ? "ml-auto max-w-[85%] rounded-lg bg-blue-700 p-3 text-sm text-white" : "max-w-[95%] rounded-lg border border-slate-200 bg-white p-3 text-sm"}>
             <p className="whitespace-pre-wrap">{t.content}</p>
             {t.reply && <ReplyExtras reply={t.reply} />}
           </div>

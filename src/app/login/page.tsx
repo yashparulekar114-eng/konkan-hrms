@@ -39,19 +39,19 @@ export default async function LoginPage() {
               <p key={p.email} className="rounded-md border border-slate-200 p-2 text-sm">
                 <span className="font-medium">{p.full_name}</span>
                 {p.is_hr_admin && <b className="ml-1 text-purple-700">HR Admin</b>}
-                {p.is_manager && <b className="ml-1 text-teal-700">Manager</b>}
+                {p.is_manager && <b className="ml-1 text-pink-700">Manager</b>}
                 {p.exited && <b className="ml-1 text-red-600">Exited</b>}
                 <span className="block font-mono text-xs text-slate-500">{p.email.replace("@", "+clerk_test@")}</span>
               </p>
             ) : (
             <ActionForm key={p.email} action={loginAs} className="">
               <input type="hidden" name="email" value={p.email} />
-              <button className="w-full rounded-md border border-slate-200 p-2 text-left text-sm hover:border-teal-500 hover:bg-teal-50">
+              <button className="w-full rounded-md border border-slate-200 p-2 text-left text-sm hover:border-pink-500 hover:bg-pink-50">
                 <span className="font-medium">{p.full_name}</span> <span className="text-slate-400">{p.employee_code}</span>
                 <span className="block text-xs text-slate-500">
                   {p.designation}, {p.location}
                   {p.is_hr_admin && <b className="ml-1 text-purple-700">HR Admin</b>}
-                  {p.is_manager && <b className="ml-1 text-teal-700">Manager</b>}
+                  {p.is_manager && <b className="ml-1 text-pink-700">Manager</b>}
                   {p.exited && <b className="ml-1 text-red-600">Exited</b>}
                 </span>
               </button>

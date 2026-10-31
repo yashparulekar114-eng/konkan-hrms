@@ -12,12 +12,12 @@ export function RevealButton({ employeeId, field, masked }: { employeeId: number
     <span className="inline-flex items-center gap-2">
       <span className="font-mono">{value ?? masked}</span>
       {value ? (
-        <button type="button" className="text-xs text-teal-700 underline" onClick={() => setValue(null)}>Hide</button>
+        <button type="button" className="text-xs text-blue-700 underline" onClick={() => setValue(null)}>Hide</button>
       ) : (
         <button
           type="button"
           disabled={pending}
-          className="text-xs text-teal-700 underline"
+          className="text-xs text-blue-700 underline"
           onClick={() =>
             start(async () => {
               const r = await revealSensitive(employeeId, field);

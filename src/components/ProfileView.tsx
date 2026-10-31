@@ -51,7 +51,7 @@ export async function ProfileView({ me, emp, tab, basePath }: { me: Me; emp: Emp
 
       <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 text-sm">
         {tabs.map(([key, label]) => (
-          <Link key={key} href={`${basePath}?tab=${key}`} className={`whitespace-nowrap px-3 py-2 ${active === key ? "border-b-2 border-teal-700 font-semibold text-teal-800" : "text-slate-600"}`}>
+          <Link key={key} href={`${basePath}?tab=${key}`} className={`whitespace-nowrap px-3 py-2 ${active === key ? "border-b-2 border-pink-700 font-semibold text-blue-800" : "text-slate-600"}`}>
             {label}
           </Link>
         ))}
@@ -151,7 +151,7 @@ export async function ProfileView({ me, emp, tab, basePath }: { me: Me; emp: Emp
 function ContactForm({ emp }: { emp: Employee }) {
   return (
     <details className="mt-4 rounded-md border border-slate-200 p-3">
-      <summary className="cursor-pointer text-sm font-medium text-teal-800">Edit my phone, address and emergency contact</summary>
+      <summary className="cursor-pointer text-sm font-medium text-blue-800">Edit my phone, address and emergency contact</summary>
       <ActionForm action={updateMyContact} className="mt-3 grid gap-3 sm:grid-cols-2">
         <Field label="Mobile"><input name="mobile" defaultValue={emp.mobile} className={input} required /></Field>
         <Field label="Address"><input name="address" defaultValue={emp.address} className={input} /></Field>
